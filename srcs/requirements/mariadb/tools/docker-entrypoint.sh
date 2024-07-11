@@ -1,30 +1,23 @@
 #!/bin/ash
 
-cat << EOF > config.sql
-CREATE DATABASE IF NOT EXISTS $DB_NAME;
-CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PWD';
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$DB_ROOT_PWD';
-GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%' WITH GRANT OPTION;
-USE $DB_NAME;
+# Define the config file path
+CONFIG_FILE="/tmp/config.sql"
+
+cat << EOF > ${CONFIG_FILE}
+CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PWD}';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '${DB_ROOT_PWD}';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%' WITH GRANT OPTION;
+USE ${DB_NAME};
 FLUSH PRIVILEGES;
 EOF
 
-# Initialize MariaDB database
-mysql_install_db
+# Check if the database is already initialized
+echo 'Initializing MariaDB database...'
+# mysql_install_db --datadir=/var/lib/mysql
 
-# Start MySQL in the background
-mysqld --skip-networking &
-
-# Wait for MySQL to be ready
-while ! mysqladmin ping --silent; do
-  echo 'MySQL init process in progress...'
-  sleep 1
-done
-
-# Run the setup script
-mysql < /tmp/config.sql
-
-# Stop background MySQL process and start it normally
-killall mysqld
-
+# Run bootstrap to execute the configuration SQL
+mysqld < ${CONFIG_FILE}
+echo 'Initializing MariaDB database...2'
+# Start MariaDB normally
 exec "$@"

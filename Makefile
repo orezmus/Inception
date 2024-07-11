@@ -5,8 +5,8 @@ all: init build up
 
 init:
 	mkdir -p $(DATA_DIR) $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
-	sudo chown -R 100 $(DATA_DIR)/mariadb
-	sudo chmod -R 770 $(DATA_DIR)/mariadb
+	# sudo chown -R 100 $(DATA_DIR)/mariadb
+	# sudo chmod -R 770 $(DATA_DIR)/mariadb
 
 up:
 	docker-compose -f $(DOCKER_COMPOSE_PATH) up -d --remove-orphans
